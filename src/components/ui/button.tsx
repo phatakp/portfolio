@@ -66,8 +66,7 @@ function Button({
 			{...props}
 			disabled={isLoading || disabled}
 		>
-			{isLoading && <Spinner data-icon="inline-start" />}
-			{children}
+			{isLoading ? <Spinner data-icon="inline-start" /> : children}
 		</Comp>
 	);
 }

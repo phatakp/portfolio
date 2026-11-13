@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { FileQuestion } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export function NotFoundPage() {
 	return (
@@ -17,9 +18,9 @@ export function NotFoundPage() {
 				</div>
 
 				<div className="flex flex-col justify-center gap-2 sm:flex-row">
-					<Button asChild>
-						<Link to="/">Return home</Link>
-					</Button>
+					<Link to="/" className={cn(buttonVariants())}>
+						Return home
+					</Link>
 				</div>
 			</div>
 		</div>
