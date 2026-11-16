@@ -7,6 +7,8 @@ import {
 	WalletMinimalIcon,
 } from "lucide-react";
 import { Background } from "@/components/shared/background";
+import { SiteLogo } from "@/components/shared/site-logo";
+import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import {
 	Card,
@@ -92,38 +94,47 @@ function Home() {
 	const APPS = [
 		{ title: "MoneyMap", app: APP.MONEYMAP, link: "/moneymap/dashboard" },
 		{ title: "Osian Almanova", app: APP.OSIAN, link: "/osian/dashboard" },
+		{
+			title: "KP Events",
+			app: APP.KPEVENTS,
+			link: "https://kpevents.vercel.app",
+		},
 	];
 
 	return (
 		<Background>
-			<div className="flex flex-col gap-8 px-4 pt-8 container">
-				<Card>
-					<CardHeader>
-						<CardTitle className="title">Select App</CardTitle>
-						<CardDescription>
-							{currApp ? `Current App: ${currApp}` : null}
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<div className="flex flex-col gap-8">
-							{APPS.map((app) => (
+			<div className="flex flex-col items-center gap-8 px-4 pt-8 container">
+				<Badge>Portfolio</Badge>
+				<h1 className="title text-7xl text-center">Praveen Phatak</h1>
+				<div className="w-full grid grid-cols-2 md:grid-cols-3 gap-4 items-center justify-center mx-auto">
+					{APPS.map((app) => (
+						<Card
+							key={app.app}
+							className={cn(currApp === app.app && "feature-card")}
+						>
+							<CardHeader>
+								<CardTitle className="text-sm md:text-base">
+									<SiteLogo app={app.app} />
+								</CardTitle>
+								<CardDescription>{app.title}</CardDescription>
+							</CardHeader>
+							<CardContent>
 								<Link
-									key={app.app}
 									to={app.link}
 									className={cn(
 										buttonVariants({
-											variant: currApp === app.app ? "default" : "outline",
+											variant: currApp === app.app ? "default" : "link",
 										}),
 										"capitalize w-max",
 									)}
 									onClick={() => saveApp(app.app)}
 								>
-									{app.title}
+									Go to App
 								</Link>
-							))}
-						</div>
-					</CardContent>
-				</Card>
+							</CardContent>
+						</Card>
+					))}
+				</div>
 			</div>
 		</Background>
 	);

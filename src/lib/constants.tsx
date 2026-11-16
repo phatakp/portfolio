@@ -10,6 +10,7 @@ import {
 export const APP = {
 	MONEYMAP: "MONEYMAP",
 	OSIAN: "OSIAN",
+	KPEVENTS: "KPEVENTS",
 };
 export const APP_OPTIONS = Object.values(APP);
 

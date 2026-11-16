@@ -4,7 +4,7 @@ import { Amount } from "@/components/shared/amount";
 import { Badge } from "@/components/ui/badge";
 import { PAYMENT_SOURCE } from "@/lib/constants";
 import type { Payment } from "@/types";
-import { TableCell, TableRow } from "../ui/table";
+import { TableCell, TableRow } from "../../ui/table";
 import { PaymentBtn } from "./payment-btn";
 
 type Props = {

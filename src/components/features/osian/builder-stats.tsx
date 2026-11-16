@@ -42,7 +42,12 @@ export function BuilderStats() {
 				<div className="flex items-center justify-between gap-4 md:gap-16">
 					<Stat title="From Self" total={totalSelf} />
 					<Separator />
-					<Stat title="From Bank" total={totalBank} />
+					<Stat
+						title="From Bank"
+						total={totalBank}
+						className="justify-end"
+						titleClass="text-right"
+					/>
 				</div>
 			</CardContent>
 		</Card>

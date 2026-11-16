@@ -1,11 +1,12 @@
 import { useUser } from "@clerk/tanstack-react-start";
 import { createFileRoute } from "@tanstack/react-router";
 import { apiQueries } from "@/api/osian/queries";
-import { BuilderStats } from "@/components/osian/builder-stats";
-import { OsianStats } from "@/components/osian/osian-stats";
-import { OsianTabs } from "@/components/osian/osian-tabs";
-import { PaymentTypeStats } from "@/components/osian/payment-type-stats";
-import { ProjectCost } from "@/components/osian/project-cost";
+import { BuilderStats } from "@/components/features/osian/builder-stats";
+import { OsianStats } from "@/components/features/osian/osian-stats";
+import { OsianTabs } from "@/components/features/osian/osian-tabs";
+import { PaymentTypeStats } from "@/components/features/osian/payment-type-stats";
+import { ProjectCost } from "@/components/features/osian/project-cost";
+import { Remaining } from "@/components/features/osian/remaining";
 import { SuspenseErrorBoundary } from "@/components/shared/suspense-error-boundary";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
@@ -29,6 +30,12 @@ function RouteComponent() {
 			<div className="flex md:items-center gap-4 flex-col md:flex-row md:justify-between">
 				<div className="grid gap-2">
 					<h1 className="title">Osian Dashboard</h1>
+					<SuspenseErrorBoundary
+						id={"remaining"}
+						fallback={<Skeleton className="w-80 h-10" />}
+					>
+						<Remaining />
+					</SuspenseErrorBoundary>
 				</div>
 				<div className="w-fit">
 					<SuspenseErrorBoundary

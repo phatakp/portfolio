@@ -37,11 +37,24 @@ export function OsianStats() {
 		<Card className="gradient">
 			<CardContent>
 				<div className="flex items-center justify-between gap-4 md:gap-16">
-					<Stat title="Builder Paid" total={totalBuilder ?? 0} />
+					<Stat
+						title="Builder Paid"
+						total={totalBuilder ?? 0}
+						titleClass="text-right"
+					/>
 					<Separator />
-					<Stat title="Bank Paid" total={totalBank ?? 0} />
+					<Stat
+						title="Bank Paid"
+						total={totalBank ?? 0}
+						titleClass="text-right"
+					/>
 					<Separator />
-					<Stat title="Total Paid" total={total ?? 0} />
+					<Stat
+						title="Total Paid"
+						total={total ?? 0}
+						className="justify-end"
+						titleClass="text-right"
+					/>
 				</div>
 			</CardContent>
 		</Card>

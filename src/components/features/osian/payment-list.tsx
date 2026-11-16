@@ -28,8 +28,8 @@ import {
 	PAYMENT_TYPE_OPTIONS,
 } from "@/lib/constants";
 import { capitalise } from "@/lib/utils";
-import { Button } from "../ui/button";
-import { ButtonGroup } from "../ui/button-group";
+import { Button } from "../../ui/button";
+import { ButtonGroup } from "../../ui/button-group";
 import { PaymentBtn } from "./payment-btn";
 import { PaymentListItem } from "./payment-list-item";
 

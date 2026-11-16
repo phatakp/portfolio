@@ -4,6 +4,7 @@ import {
 	createRootRouteWithContext,
 	HeadContent,
 	Scripts,
+	useLocation,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { useEffect } from "react";
@@ -50,6 +51,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	const syncApp = useAppStore((state) => state.syncFromStorage);
+	const location = useLocation();
+	const isHome = location.pathname === "/";
 
 	useEffect(() => {
 		syncApp();
@@ -63,7 +66,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<body className="bg-gradient text-foreground">
 				<TanStackQueryProvider>
 					<ClerkProvider>
-						<Navbar />
+						{isHome ? null : <Navbar />}
 						<main className="relative min-h-[calc(100vh-2rem)]">
 							{children}
 						</main>

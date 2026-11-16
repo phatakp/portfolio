@@ -1,12 +1,13 @@
 import { useSchedule } from "@/api/osian/osian.getters";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-	Table,
-	TableBody,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+
+import { cn } from "@/lib/utils";
 import { ScheduleItem } from "./schedule-item";
 
 export function Schedule() {
@@ -25,7 +26,7 @@ export function Schedule() {
 				</CardHeader>
 				<CardContent>
 					<div className="flex flex-col gap-6 pb-2">
-						<Table>
+						{/* <Table>
 							<TableHeader className="bg-secondary text-secondary-foreground">
 								<TableRow>
 									<TableHead className="title text-sm w-30 md:w-full">
@@ -55,17 +56,17 @@ export function Schedule() {
 									<TableHead></TableHead>
 								</TableRow>
 							</TableHeader>
-							<TableBody>
-								{resp?.records?.map(({ rowNumber, record }, i) => (
-									<ScheduleItem
-										key={rowNumber}
-										id={rowNumber}
-										schedule={record}
-										isLastCompleted={completed === i}
-									/>
-								))}
-							</TableBody>
-						</Table>
+							<TableBody> */}
+						{resp?.records?.map(({ rowNumber, record }, i) => (
+							<ScheduleItem
+								key={rowNumber}
+								id={rowNumber}
+								schedule={record}
+								isLastCompleted={completed === i}
+							/>
+						))}
+						{/* </TableBody>
+						</Table> */}
 					</div>
 				</CardContent>
 			</Card>
