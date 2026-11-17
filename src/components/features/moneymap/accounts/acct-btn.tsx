@@ -9,6 +9,7 @@ type Props = {
 	acct?: Account;
 	acctId?: number;
 	isDelete?: boolean;
+	isCash?: boolean;
 	children?: React.ReactNode;
 	className?: string;
 };
@@ -16,6 +17,7 @@ export function AcctBtn({
 	acct,
 	acctId,
 	isDelete,
+	isCash,
 	children,
 	className,
 }: Props) {
@@ -35,7 +37,7 @@ export function AcctBtn({
 						? `Delete Account`
 						: `Edit Account Details`
 			}
-			content={<AcctForm acct={acct} acctId={acctId} isDelete={isDelete} />}
+			content={<AcctForm acct={acct} acctId={acctId} isCash={isCash} />}
 		>
 			{!acctId && (
 				<>
@@ -46,7 +48,7 @@ export function AcctBtn({
 
 			{!!acctId && isDelete && <Trash className="size-3.5" />}
 
-			{!!acctId && !isDelete && !children && <Pen className="size-4" />}
+			{!!acctId && !isDelete && !children && <Pen className="size-3.5" />}
 			{!!acctId && !isDelete && children && children}
 		</Modal>
 	);

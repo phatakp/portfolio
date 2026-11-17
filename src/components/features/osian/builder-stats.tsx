@@ -2,7 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { apiQueries } from "@/api/osian/queries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PAYMENT_SOURCE, PAYMENT_TYPE } from "@/lib/constants";
-import { Stat } from "./stat";
+import { Stat } from "../../shared/stat";
 
 export function BuilderStats() {
 	const { data } = useSuspenseQuery(apiQueries.payments.all());

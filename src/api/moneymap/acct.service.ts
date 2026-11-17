@@ -41,6 +41,10 @@ class AcctService {
 	async getUserInvestments(request: z4.infer<typeof UserIdSchema>) {
 		return this.repo.getUserInvestments(request);
 	}
+
+	async getOptions(request: z4.infer<typeof UserIdSchema>) {
+		return this.repo.getOptions(request);
+	}
 }
 
 export const acctService = new AcctService();

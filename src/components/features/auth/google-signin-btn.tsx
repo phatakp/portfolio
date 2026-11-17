@@ -11,7 +11,7 @@ export function GoogleSignInBtn() {
 		const { error } = await signIn.sso({
 			strategy,
 			redirectCallbackUrl: "/sso",
-			redirectUrl: "/dashboard", // Learn more about session tasks at https://clerk.com/docs/guides/development/custom-flows/authentication/session-tasks
+			redirectUrl: "/", // Learn more about session tasks at https://clerk.com/docs/guides/development/custom-flows/authentication/session-tasks
 		});
 		if (error) {
 			// See https://clerk.com/docs/guides/development/custom-flows/error-handling

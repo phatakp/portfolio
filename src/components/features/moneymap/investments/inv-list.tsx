@@ -1,22 +1,24 @@
 import { useSelector } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import {
+	useGetInvestments,
+	useGetUserInvestments,
+} from "@/api/moneymap/acct.getters";
 import { apiQueries } from "@/api/moneymap/queries";
 import { PaginationRibbon } from "@/components/shadcn-space/pagination/pagination-02";
 import { Amount } from "@/components/shared/amount";
 import { useAppForm } from "@/components/shared/form-inputs/hooks";
 import {
 	Card,
-	CardAction,
 	CardContent,
-	CardDescription,
 	CardFooter,
 	CardHeader,
-	CardTitle,
 } from "@/components/ui/card";
 import { INVESTMENT_TYPE } from "@/lib/constants";
 import { capitalise } from "@/lib/utils";
 import { Route } from "@/routes/moneymap/investments";
+import { useAppStore } from "@/stores/app.store";
 import type { InvType } from "@/types";
 import { InvBtn } from "./inv-btn";
 import { InvListItem } from "./inv-list-item";
@@ -26,10 +28,13 @@ type Props = {
 };
 export function InvList({ type }: Props) {
 	const [activePage, setActivePage] = useState(1);
-
+	const user = useAppStore((state) => state.user);
 	const { auth } = Route.useRouteContext();
-	const { data: resp } = useSuspenseQuery(
-		apiQueries.investment.userInvestments(auth.userId as string),
+	const { data: resp } = useGetInvestments();
+	const userId = user?.id ?? auth.userId;
+	const { data: investments } = useGetUserInvestments(
+		resp?.records ?? [],
+		userId as string,
 	);
 
 	const form = useAppForm({
@@ -48,21 +53,26 @@ export function InvList({ type }: Props) {
 	}, [broker, category, form.setFieldValue]);
 
 	const { data: brokerOptions } = useSuspenseQuery(
-		apiQueries.investment.brokerOptions(resp?.records ?? []),
+		apiQueries.investment.brokerOptions(investments ?? []),
 	);
 
 	const { data: categoryOptions } = useSuspenseQuery(
-		apiQueries.investment.categoryOptions(resp?.records ?? []),
+		apiQueries.investment.categoryOptions(investments ?? []),
 	);
 
 	const { data: accts } = useSuspenseQuery(
 		apiQueries.investment.filteredInvestments(
-			resp?.records ?? [],
+			investments ?? [],
 			type,
 			broker,
 			category,
 		),
 	);
+
+	const overall =
+		investments
+			?.filter((record) => Number.isFinite(record.record.currValue))
+			.reduce((acc, b) => acc + b.record.currValue, 0) ?? 0;
 
 	const total =
 		accts
@@ -74,25 +84,32 @@ export function InvList({ type }: Props) {
 		<div className="flex flex-col gap-6">
 			<Card className="p-0 w-[calc(100vw-2rem)] md:w-full">
 				<CardHeader className="gradient py-4 rounded-t-md">
-					<CardTitle className="text-base md:text-xl tracking-wide capitalize text-muted-foreground">
-						{broker === "all" ? `All ${capitalise(type)}` : capitalise(broker)}{" "}
-						Investments
-					</CardTitle>
-					<CardDescription>
-						<div className="flex items-center gap-2">
-							<Amount
-								amount={total}
-								className="text-base md:text-2xl text-primary"
-								shorten
-							/>
-							<span>
-								in {accts?.length ?? 0} {capitalise(type)}(s)
+					<div className="flex flex-col">
+						<div className="flex justify-between">
+							<span className="text-base md:text-lg tracking-wide capitalize text-muted-foreground">
+								{broker === "all"
+									? `All ${type === INVESTMENT_TYPE.MUTUAL_FUND ? "MF" : capitalise(type)}`
+									: capitalise(broker)}{" "}
+								Investments
 							</span>
+							<InvBtn />
 						</div>
-					</CardDescription>
-					<CardAction>
-						<InvBtn />
-					</CardAction>
+						{!!resp?.count && (
+							<div className="flex items-center gap-2 w-full">
+								<Amount
+									amount={total}
+									className="text-base md:text-2xl text-primary"
+									shorten
+								/>
+								<span className="text-xs md:text-sm">
+									{overall > 0
+										? `${((total / overall) * 100).toFixed(1)}%`
+										: "0%"}{" "}
+									of total investments
+								</span>
+							</div>
+						)}
+					</div>
 				</CardHeader>
 				<CardContent>
 					<div className="flex flex-col gap-4 pb-2">
@@ -106,7 +123,7 @@ export function InvList({ type }: Props) {
 							<form.AppForm>
 								{type === INVESTMENT_TYPE.MUTUAL_FUND && (
 									<>
-										{brokerOptions.length > 0 && (
+										{!!resp?.count && brokerOptions.length > 0 && (
 											<form.AppField
 												name="broker"
 												listeners={{
@@ -132,7 +149,7 @@ export function InvList({ type }: Props) {
 												}}
 											</form.AppField>
 										)}
-										{categoryOptions.length > 0 && (
+										{!!resp?.count && categoryOptions.length > 0 && (
 											<form.AppField
 												name="category"
 												listeners={{
@@ -165,6 +182,11 @@ export function InvList({ type }: Props) {
 						{page?.map(({ record: inv, rowNumber }) => (
 							<InvListItem key={rowNumber} invId={rowNumber} inv={inv} />
 						))}
+						{resp?.count === 0 && (
+							<div className="mx-auto text-lg font-bold">
+								You have not added any investments yet
+							</div>
+						)}
 					</div>
 				</CardContent>
 				<CardFooter>

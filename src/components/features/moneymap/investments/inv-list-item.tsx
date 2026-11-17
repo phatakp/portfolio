@@ -1,6 +1,7 @@
 import { ChevronRight } from "lucide-react";
 import { Amount } from "@/components/shared/amount";
 import { Badge } from "@/components/ui/badge";
+import { INVESTMENT_TYPE } from "@/lib/constants";
 import type { Investment } from "@/types";
 import { Chevron } from "./chevron";
 import { InvBtn } from "./inv-btn";
@@ -19,7 +20,7 @@ export function InvListItem({ invId, inv }: Props) {
 				className="flex items-start md:items-center justify-between px-0 flex-1 py-2 h-auto w-full hover:px-2"
 			>
 				<div className="flex flex-col flex-1 gap-1">
-					<span className=" text-xs md:text-sm truncate w-30 text-left md:w-full">
+					<span className=" text-xs md:text-sm truncate w-30 text-left md:w-70">
 						{inv.fundName}
 					</span>
 
@@ -36,6 +37,24 @@ export function InvListItem({ invId, inv }: Props) {
 								shorten
 							/>
 						</Badge>
+						{inv.currPrice && inv.avgPrice && (
+							<Badge
+								variant={
+									inv.currPrice < inv.avgPrice ? "destructive" : "success"
+								}
+								className="text-xs rounded-md hidden md:flex"
+							>
+								{inv.invType === INVESTMENT_TYPE.MUTUAL_FUND
+									? "NAV:"
+									: "Curr Price:"}
+								<Amount
+									amount={inv.currPrice}
+									className="text-xs"
+									iconClass="text-muted size-3"
+									shorten
+								/>
+							</Badge>
+						)}
 
 						<Chevron gains={inv.gainsOrLoss} currValue={inv.currValue} />
 					</div>

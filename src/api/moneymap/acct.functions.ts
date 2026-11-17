@@ -85,3 +85,9 @@ export const getUserInvestments = createServerFn()
 	.handler(async ({ context }) => {
 		return acctService.getUserInvestments({ clerkId: context.userId });
 	});
+
+export const getOptions = createServerFn()
+	.middleware([assertAuthMiddleware, withMetaLogger("/options", "getOptions")])
+	.handler(async ({ context }) => {
+		return acctService.getOptions({ clerkId: context.userId });
+	});

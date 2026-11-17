@@ -34,7 +34,7 @@ export function VerifySignUpForm() {
 							return;
 						}
 
-						const url = decorateUrl("/dashboard");
+						const url = decorateUrl("/");
 						if (url.startsWith("http")) {
 							window.location.href = url;
 						} else {

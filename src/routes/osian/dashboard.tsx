@@ -17,6 +17,9 @@ export const Route = createFileRoute("/osian/dashboard")({
 		context.queryClient.query(apiQueries.payments.all());
 		context.queryClient.query(apiQueries.schedule.all());
 	},
+	head: () => ({
+		meta: [{ title: "Osian | Dashboard" }],
+	}),
 });
 
 function RouteComponent() {

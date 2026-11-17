@@ -16,7 +16,7 @@ function RouteComponent() {
 	const navigate = useNavigate();
 
 	if (isSignedIn) {
-		navigate({ to: "/dashboard" });
+		navigate({ to: "/" });
 		return;
 	}
 

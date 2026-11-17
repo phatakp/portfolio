@@ -48,9 +48,10 @@ export function amountShortener(val: number) {
 }
 
 export const capitalise = (s: string) => {
-	if (!s) return s;
+	if (!s || s === "") return s;
 	return s
 		.replace("_", " ")
+		.replace("-", " ")
 		.split(" ")
 		.map((word) =>
 			[

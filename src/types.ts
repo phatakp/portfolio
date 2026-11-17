@@ -4,6 +4,8 @@ import type {
 	AcctSchema,
 	InvestmentSchema,
 	InvResponseSchema,
+	OptionResponseSchema,
+	OptionSchema,
 } from "./lib/zod/acct.schema";
 import type {
 	AcctTypeSchema,
@@ -40,6 +42,7 @@ export type User = z4.infer<typeof UserSchema>;
 export type Bank = z4.infer<typeof BankSchema>;
 export type Account = z4.infer<typeof AcctSchema>;
 export type Investment = z4.infer<typeof InvestmentSchema>;
+export type Option = z4.infer<typeof OptionSchema>;
 
 export type APIResponse<T> = z4.infer<typeof APIResponseSchema> & {
 	message?: string;
@@ -48,6 +51,7 @@ export type APIResponse<T> = z4.infer<typeof APIResponseSchema> & {
 
 export type AcctResponse = z4.infer<typeof AcctResponseSchema>;
 export type InvResponse = z4.infer<typeof InvResponseSchema>;
+export type OptionResponse = z4.infer<typeof OptionResponseSchema>;
 
 export type PaymentSource = z4.infer<typeof PaymentSourceSchema>;
 export type PaymentType = z4.infer<typeof PaymentTypeSchema>;

@@ -1,6 +1,8 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { Pie, PieChart } from "recharts";
-import { apiQueries } from "@/api/moneymap/queries";
+import { Pie, PieChart, type PieSectorShapeProps, Sector } from "recharts";
+import {
+	useGetAccounts,
+	useGetUserAccounts,
+} from "@/api/moneymap/acct.getters";
 import { Amount } from "@/components/shared/amount";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -9,23 +11,27 @@ import {
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart";
-
 import { capitalise } from "@/lib/utils";
 import { Route } from "@/routes/moneymap/accounts";
+import { useAppStore } from "@/stores/app.store";
 
 export function AcctChart() {
 	const { auth } = Route.useRouteContext();
-	const { data: resp } = useSuspenseQuery(
-		apiQueries.account.userAccts(auth.userId as string),
-	);
-	const acctByType = Object.groupBy(
+	const user = useAppStore((state) => state.user);
+	const userId = user?.id ?? auth.userId;
+
+	const { data: resp } = useGetAccounts();
+	const { data: accts } = useGetUserAccounts(
 		resp?.records ?? [],
-		({ record }) => record.acctType,
+		userId as string,
 	);
-	const data = Object.entries(acctByType).map(([key, values]) => ({
-		category: key,
-		total: values?.reduce((acc, b) => acc + b.record.currValue, 0) ?? 0,
-	}));
+	const acctByType = Object.groupBy(accts, ({ record }) => record.acctType);
+	const data = Object.entries(acctByType)
+		.map(([key, values]) => ({
+			category: key,
+			total: values?.reduce((acc, b) => acc + b.record.currValue, 0) ?? 0,
+		}))
+		.sort((a, b) => b.total - a.total);
 
 	const chartConfig = data.reduce(
 		(acc, d, i) => {
@@ -67,22 +73,32 @@ export function AcctChart() {
 								dataKey="total"
 								nameKey="category"
 								innerRadius={60}
-								outerRadius={80}
 								paddingAngle={2}
+								shape={({
+									index,
+									outerRadius = 0,
+									...props
+								}: PieSectorShapeProps) =>
+									index === 0 ? (
+										<Sector {...props} outerRadius={outerRadius + 10} />
+									) : (
+										<Sector {...props} outerRadius={outerRadius} />
+									)
+								}
 							/>
 						</PieChart>
 					</ChartContainer>
 				</div>
-				<div className="flex gap-4 flex-wrap items-center justify-center">
+				<div className="flex flex-col md:flex-row md:gap-4 md:items-center md:justify-center md:flex-wrap">
 					{data.map((d, i) => (
 						<div
 							key={d.category}
-							className={`flex flex-col justify-center items-center p-2 rounded-sm shadow shadow-chart-${i + 1}`}
+							className={`flex flex-row justify-between md:flex-col md:justify-center items-center py-1 md:p-2 rounded-sm shadow shadow-chart-${i + 1}`}
 						>
 							<span className={`text-xs text-chart-${i + 1}`}>
 								{capitalise(d.category)}
 							</span>
-							<Amount amount={d.total} className="text-sm" />
+							<Amount amount={d.total} className="text-sm" shorten />
 						</div>
 					))}
 				</div>

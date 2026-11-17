@@ -1,37 +1,74 @@
 import { queryOptions } from "@tanstack/react-query";
 import { BANK, INVESTMENT_TYPE } from "@/lib/constants";
 import { capitalise } from "@/lib/utils";
-import type { AccountType, InvResponse, InvType } from "@/types";
+import type { AccountType, AcctResponse, InvResponse, InvType } from "@/types";
 import { getUserAccounts, getUserInvestments } from "./acct.functions";
 
 export const apiQueries = {
 	account: {
-		all: () => ["accts"] as const,
-		userAccts: (userId: string) =>
+		all: () =>
 			queryOptions({
-				queryKey: [...apiQueries.account.all(), userId] as const,
+				queryKey: ["accts"] as const,
 				queryFn: getUserAccounts,
+				staleTime: Infinity,
+			}),
+		userAccounts: (data: AcctResponse[], userId: string) =>
+			queryOptions({
+				queryKey: [
+					...apiQueries.account.all().queryKey,
+					"user",
+					data,
+					userId,
+				] as const,
+				queryFn: () => {
+					return data.filter((r) =>
+						userId === "all" ? r : r.record.userId === userId,
+					);
+				},
 				staleTime: 1000 * 60 * 60 * 24,
 			}),
-		bankOptions: (type: AccountType) =>
+
+		bankOptions: (type: AccountType, isNew?: boolean) =>
 			queryOptions({
-				queryKey: [...apiQueries.account.all(), "bank-options", type] as const,
+				queryKey: [
+					...apiQueries.account.all().queryKey,
+					"bank-options",
+					type,
+					isNew,
+				] as const,
 				queryFn: () =>
-					BANK[type as keyof typeof BANK]?.map((b: string) => ({
-						label: b,
-						value: b,
-					})),
+					BANK[type as keyof typeof BANK]
+						?.filter((b) => (isNew ? b.toLowerCase() !== "cash" : b))
+						.map((b: string) => ({
+							label: b,
+							value: b,
+						})),
 				staleTime: 1000 * 60 * 60 * 24,
 			}),
 	},
 	investment: {
-		all: () => ["investments"] as const,
-		userInvestments: (userId: string) =>
+		all: () =>
 			queryOptions({
-				queryKey: [...apiQueries.investment.all(), userId] as const,
+				queryKey: ["investments"] as const,
 				queryFn: getUserInvestments,
+				staleTime: Infinity,
+			}),
+		userInvestments: (data: InvResponse[], userId: string) =>
+			queryOptions({
+				queryKey: [
+					...apiQueries.investment.all().queryKey,
+					"user",
+					data,
+					userId,
+				] as const,
+				queryFn: () => {
+					return data
+						.filter((r) => (userId === "all" ? r : r.record.userId === userId))
+						.sort((a, b) => (a.record.fundName > b.record.fundName ? 1 : -1));
+				},
 				staleTime: 1000 * 60 * 60 * 24,
 			}),
+
 		filteredInvestments: (
 			data: InvResponse[],
 			type: InvType,
@@ -40,7 +77,7 @@ export const apiQueries = {
 		) =>
 			queryOptions({
 				queryKey: [
-					...apiQueries.investment.all(),
+					...apiQueries.investment.all().queryKey,
 					"filtered",
 					data,
 					type,
@@ -71,7 +108,7 @@ export const apiQueries = {
 		userStats: (data: InvResponse[], type: "all" | "stocks" | "funds") =>
 			queryOptions({
 				queryKey: [
-					...apiQueries.investment.all(),
+					...apiQueries.investment.all().queryKey,
 					"stats",
 					data,
 					type,
@@ -136,7 +173,7 @@ export const apiQueries = {
 		brokerOptions: (data: InvResponse[]) =>
 			queryOptions({
 				queryKey: [
-					...apiQueries.investment.all(),
+					...apiQueries.investment.all().queryKey,
 					"broker-options",
 					data,
 				] as const,
@@ -160,7 +197,7 @@ export const apiQueries = {
 		categoryOptions: (data: InvResponse[]) =>
 			queryOptions({
 				queryKey: [
-					...apiQueries.investment.all(),
+					...apiQueries.investment.all().queryKey,
 					"category-options",
 					data,
 				] as const,

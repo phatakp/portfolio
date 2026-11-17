@@ -1,21 +1,39 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { useGetStats } from "@/api/moneymap/acct.getters";
-import { apiQueries } from "@/api/moneymap/queries";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+	useGetInvestments,
+	useGetStats,
+	useGetUserInvestments,
+} from "@/api/moneymap/acct.getters";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Route } from "@/routes/moneymap/investments";
+import { useAppStore } from "@/stores/app.store";
 import { Stat } from "./stat";
 
 export function Portfolio() {
+	const user = useAppStore((state) => state.user);
 	const { auth } = Route.useRouteContext();
-	const { data: resp } = useSuspenseQuery(
-		apiQueries.investment.userInvestments(auth.userId as string),
+	const { data: resp } = useGetInvestments();
+	const userId = user?.id ?? auth.userId;
+	const { data: investments } = useGetUserInvestments(
+		resp?.records ?? [],
+		userId as string,
 	);
-	const { data: totalStats } = useGetStats(resp?.records || [], "all");
-	const { data: stockStats } = useGetStats(resp?.records || [], "stocks");
-	const { data: fundStats } = useGetStats(resp?.records || [], "funds");
+	const { data: totalStats } = useGetStats(investments || [], "all");
+	const { data: stockStats } = useGetStats(investments || [], "stocks");
+	const { data: fundStats } = useGetStats(investments || [], "funds");
+	if (investments?.length === 0) return null;
+
 	return (
-		<Card className="gradient">
-			<CardContent>
+		<Card className="gradient p-0">
+			<CardHeader className="pt-4">
+				<CardTitle>
+					{user && user.id === "all"
+						? "Combined Family"
+						: user
+							? user.name
+							: `${auth.firstName} ${auth.lastName}`}
+				</CardTitle>
+			</CardHeader>
+			<CardContent className="py-0">
 				<div className="flex items-center justify-between gap-4 md:gap-16">
 					<Stat
 						title="Portfolio"

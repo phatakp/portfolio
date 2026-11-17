@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/a11y/useSemanticElements: <ignore> */
 import { Check, ChevronsUpDown, Plus, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
 	Command,
 	CommandEmpty,
@@ -72,17 +72,18 @@ export const SelectInput = ({
 					<Button
 						aria-expanded={open}
 						className={cn(
-							"w-full justify-between capitalize h-10 bg-transparent",
-							!selected?.value ? "text-muted-foreground" : "text-foreground",
-							"disabled:border-0 disabled:ring-0 disabled:outline-0 disabled:pl-4",
+							"w-full justify-between capitalize h-10 bg-transparent text-foreground",
+							buttonVariants({ variant: props.variant ?? "outline" }),
+							props.disabled
+								? "text-left justify-start"
+								: "justify-between text-left",
 							className,
 						)}
-						variant="outline"
 						disabled={props.disabled}
 					>
 						<span className="flex items-center gap-2">
 							{icon && icon}
-							{selected?.value ? selected.label : `Select ${props.label}...`}
+							{selected.label ? selected.label : `Select...`}
 						</span>
 						<ChevronsUpDown
 							className={cn(

@@ -61,15 +61,13 @@ export const AmountInput = ({
 
 	return (
 		<FormInputBase {...props}>
-			<InputGroup
-				className={cn(props.disabled && "ring-0 border-0 outline-0", className)}
-			>
+			<InputGroup className={cn(className)}>
 				<InputGroupAddon>
 					<IndianRupeeIcon className="size-3 text-muted-foreground" />
 				</InputGroupAddon>
 				<InputGroupInput
 					{...props}
-					placeholder={props.label}
+					placeholder={""}
 					type="text"
 					name={field.name}
 					value={displayValue}
@@ -77,10 +75,7 @@ export const AmountInput = ({
 					onChange={handleChange}
 					onFocus={(e) => e.target.select()}
 					aria-invalid={isInvalid}
-					className={cn(
-						"w-full text-sm",
-						props.disabled && "ring-0 border-0 outline-0 pl-4",
-					)}
+					className={cn("w-full text-sm")}
 				/>
 				<InputGroupAddon align="inline-end">
 					<InputGroupText className="text-xs">INR</InputGroupText>

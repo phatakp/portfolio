@@ -38,7 +38,7 @@ export function ProfileForm() {
 						}
 
 						// If no session tasks, navigate the signed-in user to the home page
-						const url = decorateUrl("/dashboard");
+						const url = decorateUrl("/");
 						if (url.startsWith("http")) {
 							window.location.href = url;
 						} else {
@@ -53,7 +53,9 @@ export function ProfileForm() {
 
 			// If the sign-up is complete, the user shouldn't be on this page
 			if (signUp.status === "complete") {
-				navigate({ to: "/dashboard" });
+				navigate({
+					to: "/",
+				});
 			}
 		},
 	});

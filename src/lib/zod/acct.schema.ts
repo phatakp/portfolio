@@ -1,4 +1,4 @@
-import z4 from "zod/v4";
+import z4, { ZodCUID2, z } from "zod/v4";
 import {
 	AcctTypeSchema,
 	BankSchema,
@@ -71,16 +71,31 @@ export const InvReqSchema = InvestmentSchema.omit({
 	rowNumber: z4.coerce.number<number>(),
 });
 
+export const OptionSchema = z4.object({
+	type: z4.string(),
+	value: z4.string(),
+});
+
 export const AcctResponseSchema = z4.object({
 	rowNumber: z4.coerce.number<number>(),
 	record: AcctSchema,
 });
+
 export const InvResponseSchema = z4.object({
 	rowNumber: z4.coerce.number<number>(),
 	record: InvestmentSchema,
 });
 
+export const OptionResponseSchema = z4.object({
+	rowNumber: z4.coerce.number<number>(),
+	record: OptionSchema,
+});
+
 export const DeleteIdSchema = z4.object({
 	rowNumber: z4.coerce.number<number>(),
+	userId: z4.string(),
+});
+
+export const UserIdSchema = z4.object({
 	userId: z4.string(),
 });

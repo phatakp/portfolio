@@ -37,7 +37,7 @@ export function VerifySignInForm() {
 						}
 
 						// If no session tasks, navigate the signed-in user to the home page
-						const url = decorateUrl("/dashboard");
+						const url = decorateUrl("/");
 						if (url.startsWith("http")) {
 							window.location.href = url;
 						} else {

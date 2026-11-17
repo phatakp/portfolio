@@ -1,5 +1,6 @@
 import { useUser } from "@clerk/tanstack-react-start";
 import { useSelector } from "@tanstack/react-form";
+import { useState } from "react";
 import { useGetBankOptions } from "@/api/moneymap/acct.getters";
 import {
 	useCreateAccount,
@@ -21,11 +22,18 @@ import type { Account } from "@/types";
 type Props = {
 	acct?: Account;
 	acctId?: number;
-	isDelete?: boolean;
+	isModal?: boolean;
+	isCash?: boolean;
 };
-export function AcctForm({ acct, acctId, isDelete }: Props) {
+export function AcctForm({
+	acct,
+	acctId,
+	isModal = true,
+	isCash: hasCash,
+}: Props) {
+	const [isDelete, setIsDelete] = useState(false);
 	const { mutate: createAccount, isPending: isPendingCreate } =
-		useCreateAccount();
+		useCreateAccount(isModal);
 	const { mutate: updateAccount, isPending: isPendingUpdate } =
 		useUpdateAccount();
 	const { mutate: deleteAccount, isPending: isPendingDelete } =
@@ -52,17 +60,19 @@ export function AcctForm({ acct, acctId, isDelete }: Props) {
 			// console.log("Submitting form with value:", value);
 			if (acctId) updateAccount({ data: value });
 			else createAccount({ data: value });
+			form.reset();
 		},
 	});
 
 	const acctType = useSelector(form.store, (state) => state.values.acctType);
+	const bank = useSelector(form.store, (state) => state.values.bank);
 
-	const { data: bankOptions, isLoading } = useGetBankOptions(acctType);
+	const { data: bankOptions, isLoading } = useGetBankOptions(acctType, hasCash);
 
-	const loading =
-		isLoading || isPendingCreate || isPendingUpdate || isPendingDelete;
+	const loading = isPendingCreate || isPendingUpdate || isPendingDelete;
 	if (loading || !isLoaded) return <Skeleton className="h-40 w-80 m-auto" />;
 	if (!isSignedIn || !user.id) return;
+	const isCash = bank.toLowerCase() === "cash";
 
 	return (
 		<form
@@ -80,84 +90,79 @@ export function AcctForm({ acct, acctId, isDelete }: Props) {
 					listeners={{
 						onChange: ({ value }) => {
 							form.setErrorMap({});
-							form.setFieldValue("acctType", value);
 							form.setFieldValue("acctNumber", "");
 							form.setFieldValue("balance", 0);
 							form.setFieldValue("currValue", 0);
 							form.setFieldValue("bank", "");
 							form.setFieldValue("remarks", "");
+
 							if (
-								[ACCOUNT_TYPE.CREDIT_CARD, ACCOUNT_TYPE.MORTGAGE].includes(
-									value,
-								)
-							)
+								value === ACCOUNT_TYPE.CREDIT_CARD ||
+								value === ACCOUNT_TYPE.MORTGAGE
+							) {
 								form.setFieldValue("classification", CLASSIFICATION.LIABILITY);
-							else form.setFieldValue("classification", CLASSIFICATION.ASSET);
+							} else form.setFieldValue("classification", CLASSIFICATION.ASSET);
 						},
 					}}
 				>
 					{(field) => (
-						<div className="flex md:gap-4 md:flex-row flex-col gap-6 justify-between">
-							<div className="flex gap-4 justify-between">
-								<field.SelectInput
-									label="Acct Type"
-									variant={
-										acct?.classification === CLASSIFICATION.LIABILITY
-											? "destructive"
-											: "success"
-									}
-									disabled={isDelete || !!acctId || loading}
-									options={ACCOUNT_TYPE_OPTIONS.map((t) => ({
-										value: t,
-										label: capitalise(t),
-									}))}
-									className={cn(
-										acctId && acct?.classification === CLASSIFICATION.ASSET
-											? "bg-success text-success-foreground"
-											: acctId
-												? "bg-destructive text-destructive-foreground"
-												: "",
-									)}
-								/>
+						<div className="flex gap-4 justify-between">
+							<field.SelectInput
+								label="Acct Type"
+								variant={
+									acct?.classification === CLASSIFICATION.LIABILITY
+										? "destructive"
+										: acct
+											? "success"
+											: "outline"
+								}
+								disabled={isDelete || !!acctId || loading}
+								options={ACCOUNT_TYPE_OPTIONS.filter(
+									(t) => t !== ACCOUNT_TYPE.INVESTMENT,
+								).map((t) => ({
+									value: t,
+									label: capitalise(t),
+								}))}
+							/>
 
-								<form.AppField name="bank">
-									{(field) => {
-										let options = bankOptions ?? [];
-										if (!acctId)
-											options =
-												bankOptions?.filter(
-													(b) => b.value.toLowerCase() !== "cash",
-												) ?? [];
-										return (
-											<field.SelectInput
-												label={"Bank"}
-												variant="default"
-												disabled={isDelete || !!acctId || loading}
-												options={!acctId ? options : (bankOptions ?? [])}
-											/>
-										);
-									}}
-								</form.AppField>
-							</div>
-
-							<form.AppField name="acctNumber">
-								{(field) => (
-									<field.TextInput
-										label={"Acct Number"}
-										disabled={
-											isDelete ||
-											loading ||
-											form.getFieldValue("bank").toLowerCase() === "cash"
-										}
-										formatValue
-									/>
-								)}
+							<form.AppField
+								name="bank"
+								listeners={{
+									onChange: ({ value }) => {
+										if (value.toLowerCase() === "cash")
+											form.setFieldValue("acctNumber", "0000");
+									},
+								}}
+							>
+								{(field) => {
+									return (
+										<field.SelectInput
+											label={"Bank"}
+											isLoading={isLoading}
+											variant={acct ? "secondary" : "outline"}
+											disabled={isDelete || !!acctId || loading}
+											options={bankOptions ?? []}
+										/>
+									);
+								}}
 							</form.AppField>
 						</div>
 					)}
 				</form.AppField>
 
-				<div className="flex flex-col gap-6 md:flex-row md:gap-4">
+				<div className="flex gap-4 justify-between">
+					{!isCash && (
+						<form.AppField name="acctNumber">
+							{(field) => (
+								<field.TextInput
+									label={"Acct Number"}
+									disabled={isDelete || loading}
+									formatValue
+								/>
+							)}
+						</form.AppField>
+					)}
+
 					<form.AppField
 						name="balance"
 						listeners={{
@@ -194,11 +199,17 @@ export function AcctForm({ acct, acctId, isDelete }: Props) {
 						Confirm Delete
 					</Button>
 				) : (
-					<form.SubmitButton
-						label="Submit"
-						className="w-full"
-						isLoading={loading}
-					/>
+					<div className="flex items-center justify-end gap-4">
+						<Button
+							variant={"destructive"}
+							type="button"
+							onClick={() => setIsDelete(true)}
+							className={cn((isCash || !acctId) && "hidden")}
+						>
+							Delete
+						</Button>
+						<form.SubmitButton label="Submit" isLoading={loading} />
+					</div>
 				)}
 			</form.AppForm>
 		</form>

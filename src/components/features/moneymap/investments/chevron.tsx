@@ -6,6 +6,8 @@ type Props = {
 	currValue: number;
 };
 export function Chevron({ gains, currValue }: Props) {
+	if (!gains) return null;
+
 	return (
 		<div className="flex items-center">
 			{gains < 0 ? (

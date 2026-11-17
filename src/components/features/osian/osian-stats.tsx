@@ -1,8 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { apiQueries } from "@/api/osian/queries";
+import { Stat } from "@/components/shared/stat";
 import { Card, CardContent } from "@/components/ui/card";
 import { PAYMENT_TYPE } from "@/lib/constants";
-import { Stat } from "./stat";
 
 export function OsianStats() {
 	const { data } = useSuspenseQuery(apiQueries.payments.all());

@@ -1,6 +1,5 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { Pie, PieChart } from "recharts";
-import { apiQueries } from "@/api/moneymap/queries";
+
 import { Amount } from "@/components/shared/amount";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -9,34 +8,30 @@ import {
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart";
-
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { capitalise } from "@/lib/utils";
-import { Route } from "@/routes/moneymap/investments";
 
-export function CategoryChart() {
-	const { auth } = Route.useRouteContext();
-	const { data: resp } = useSuspenseQuery(
-		apiQueries.investment.userInvestments(auth.userId as string),
-	);
+const data = [
+	{ category: "food", total: 43570 },
+	{ category: "utilities", total: 7390 },
+	{ category: "health", total: 14890 },
+	{ category: "travel", total: 20390 },
+	{ category: "pleasure", total: 10000 },
+];
 
-	const grouped = Object.groupBy(
-		resp?.records ?? [],
-		(item) => item.record.category,
-	);
-
-	const data = Object.entries(grouped).map(([category, items]) => ({
-		category,
-		total:
-			items
-				?.filter((i) => Number.isFinite(i.record.investedAmt))
-				.reduce((sum, item) => sum + item.record.investedAmt, 0) ?? 0,
-	}));
-
+export function ExpenseChart() {
 	const chartConfig = data.reduce(
 		(acc, d, i) => {
 			acc[d.category] = {
 				label: capitalise(d.category),
-				color: `var(--chart-${(i % 5) + 1})`,
+				color: `var(--chart-${i + 1})`,
 			};
 			return acc;
 		},
@@ -54,7 +49,20 @@ export function CategoryChart() {
 		<Card className="flex flex-col">
 			<CardContent className="flex flex-col pb-0 gap-4">
 				<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-					<span className="title text-base">Investments by Category</span>
+					<span className="title text-base">Major Expenses</span>
+					<Select defaultValue="1">
+						<SelectTrigger className="w-fit text-xs">
+							<SelectValue placeholder=" " />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectGroup>
+								<SelectItem value="1">This Month</SelectItem>
+								<SelectItem value="2">Last 3 Months</SelectItem>
+								<SelectItem value="3">Last 6 Months</SelectItem>
+								<SelectItem value="4">Last Year</SelectItem>
+							</SelectGroup>
+						</SelectContent>
+					</Select>
 				</div>
 				<div className="h-full w-full relative">
 					<ChartContainer

@@ -21,47 +21,47 @@ export const USER_ROLE = {
 export const USER_ROLE_OPTIONS = Object.values(USER_ROLE);
 
 export const ACCOUNT_TYPE = {
-	SAVINGS: "SAVINGS",
-	CREDIT_CARD: "CREDIT_CARD",
-	MORTGAGE: "MORTGAGE",
-	WALLET: "WALLET",
-	INVESTMENT: "INVESTMENT",
+	SAVINGS: "Savings",
+	CREDIT_CARD: "Credit Card",
+	MORTGAGE: "Mortgage",
+	WALLET: "Wallet",
+	INVESTMENT: "Investment",
 };
 export const ACCOUNT_TYPE_OPTIONS = Object.values(ACCOUNT_TYPE);
 
 export const CLASSIFICATION = {
-	ASSET: "ASSET",
-	LIABILITY: "LIABILITY",
+	ASSET: "Asset",
+	LIABILITY: "Liability",
 };
 export const CLASSIFICATION_OPTIONS = Object.values(CLASSIFICATION);
 
 export const INVESTMENT_TYPE = {
-	MUTUAL_FUND: "FUND",
-	EQUITY: "EQUITY",
-	RETIREMENT: "RETIREMENT",
-	DEPOSIT: "DEPOSIT",
+	MUTUAL_FUND: "Mutual Fund",
+	EQUITY: "Equity",
+	RETIREMENT: "Retirement",
+	DEPOSIT: "Deposit",
 };
 export const INVESTMENT_TYPE_OPTIONS = Object.values(INVESTMENT_TYPE);
 
 export const INVESTMENT_SUBTYPE = {
-	DEBT: "DEBT",
-	EQUITY: "EQUITY",
-	COMMODITY: "COMMODITY",
-	HYBRID: "HYBRID",
+	DEBT: "Debt",
+	EQUITY: "Equity",
+	COMMODITY: "Commodity",
+	HYBRID: "Hybrid",
 };
 export const INVESTMENT_SUBTYPE_OPTIONS = Object.values(INVESTMENT_SUBTYPE);
 
 export const TXN_TYPE = {
-	EXPENSE: "EXPENSE",
-	INCOME: "INCOME",
-	TRANSFER: "TRANSFER",
-	INVESTMENT: "INVESTMENT",
+	EXPENSE: "Expense",
+	INCOME: "Income",
+	TRANSFER: "Transfer",
+	INVESTMENT: "Investment",
 };
 export const TXN_TYPE_OPTIONS = Object.values(TXN_TYPE);
 
 export const BANK = {
 	ALL: [
-		"CASH",
+		"Cash",
 		"SBI Bank",
 		"ICICI Bank",
 		"HDFC Bank",
@@ -79,18 +79,24 @@ export const BANK = {
 		"Google Pay",
 		"Stable Money",
 	],
-	SAVINGS: [
+	Savings: [
 		"SBI Bank",
 		"ICICI Bank",
 		"HDFC Bank",
 		"AXIS Bank",
 		"CitiBank",
-		"CASH",
+		"Cash",
 	],
-	MORTGAGE: ["SBI Bank", "ICICI Bank", "HDFC Bank", "AXIS Bank", "CitiBank"],
-	CREDIT_CARD: ["SBI Bank", "ICICI Bank", "HDFC Bank", "AXIS Bank", "CitiBank"],
-	WALLET: ["Phone Pe", "Pluxee", "Amazon Pay", "Google Pay"],
-	INVESTMENT: [
+	Mortgage: ["SBI Bank", "ICICI Bank", "HDFC Bank", "AXIS Bank", "CitiBank"],
+	"Credit Card": [
+		"SBI Bank",
+		"ICICI Bank",
+		"HDFC Bank",
+		"AXIS Bank",
+		"CitiBank",
+	],
+	Wallet: ["Phone Pe", "Pluxee", "Amazon Pay", "Google Pay"],
+	Investment: [
 		"Funds India",
 		"Ind Money",
 		"ICICI Direct",

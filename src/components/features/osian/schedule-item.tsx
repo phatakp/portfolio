@@ -2,7 +2,6 @@ import { useUser } from "@clerk/tanstack-react-start";
 import { useState } from "react";
 import { useUpdateSchedule } from "@/api/osian/osian.mutations";
 import { Amount } from "@/components/shared/amount";
-import { Badge } from "@/components/ui/badge";
 import {
 	Card,
 	CardAction,
@@ -11,6 +10,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
 	Table,
 	TableBody,
@@ -21,8 +22,6 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import type { Schedule } from "@/types";
-import { Checkbox } from "../../ui/checkbox";
-import { Skeleton } from "../../ui/skeleton";
 
 type Props = {
 	id: number;

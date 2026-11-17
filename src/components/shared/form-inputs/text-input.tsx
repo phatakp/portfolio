@@ -33,11 +33,11 @@ export const TextInput = ({
 
 	return (
 		<FormInputBase {...props}>
-			<InputGroup className={cn(props.disabled && "ring-0 border-0 outline-0")}>
+			<InputGroup className={cn()}>
 				{icon && <InputGroupAddon>{icon}</InputGroupAddon>}
 				<InputGroupInput
 					{...cleanProps}
-					placeholder={props.label}
+					placeholder={""}
 					name={field.name}
 					value={field.state.value ?? ""}
 					onBlur={field.handleBlur}
@@ -52,10 +52,7 @@ export const TextInput = ({
 					}
 					onFocus={(e) => e.target.select()}
 					aria-invalid={isInvalid}
-					className={cn(
-						"w-full text-sm",
-						props.disabled && "ring-0 border-0 outline-0 pl-4",
-					)}
+					className={cn("w-full text-sm")}
 				/>
 				{showClearButton && field.state.value && (
 					<InputGroupAddon align="inline-end">

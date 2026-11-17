@@ -6,17 +6,29 @@ import type {
 	InvReqSchema,
 } from "@/lib/zod/acct.schema";
 import type { UserIdSchema } from "@/lib/zod/user.schema";
-import type { AcctResponse, APIResponse, InvResponse } from "@/types";
+import type {
+	AcctResponse,
+	APIResponse,
+	InvResponse,
+	OptionResponse,
+} from "@/types";
 
 export class AcctRepository {
 	url = `${process.env.MONEYMAP_GOOGLE_API_URL}`;
+	account = "Account";
+	investment = "Investment";
+	options = "Options";
 
 	async createAccount(request: z4.infer<typeof AcctReqSchema>) {
 		try {
 			const { rowNumber, ...input } = request;
 			const res = await api.post(
 				this.url,
-				JSON.stringify({ data: input, action: "create", target: "account" }),
+				JSON.stringify({
+					data: input,
+					action: "create",
+					target: this.account,
+				}),
 			);
 			const data = res.data as APIResponse<AcctResponse>;
 			if (data.success) return data;
@@ -35,7 +47,7 @@ export class AcctRepository {
 				JSON.stringify({
 					data: input,
 					action: "update",
-					target: "account",
+					target: this.account,
 					rowNumber,
 				}),
 			);
@@ -55,8 +67,9 @@ export class AcctRepository {
 				this.url,
 				JSON.stringify({
 					action: "delete",
-					target: "account",
+					target: this.account,
 					rowNumber,
+					data: request.userId,
 				}),
 			);
 			const data = res.data as APIResponse<AcctResponse>;
@@ -75,7 +88,7 @@ export class AcctRepository {
 				JSON.stringify({
 					data: input,
 					action: "create",
-					target: "investment",
+					target: this.investment,
 				}),
 			);
 			const data = res.data as APIResponse<InvResponse>;
@@ -95,7 +108,7 @@ export class AcctRepository {
 				JSON.stringify({
 					data: input,
 					action: "update",
-					target: "investment",
+					target: this.investment,
 					rowNumber,
 				}),
 			);
@@ -115,8 +128,9 @@ export class AcctRepository {
 				this.url,
 				JSON.stringify({
 					action: "delete",
-					target: "investment",
+					target: this.investment,
 					rowNumber,
+					data: request.userId,
 				}),
 			);
 			const data = res.data as APIResponse<InvResponse>;
@@ -129,10 +143,12 @@ export class AcctRepository {
 
 	async getUserAccounts(request: z4.infer<typeof UserIdSchema>) {
 		try {
-			const params = `?action=read&userId=${request.clerkId}&target=account`;
+			const params = `?action=read&userId=${request.clerkId}&target=${this.account}`;
 			const res = await api.get(`${this.url}${params}`);
 			const data = res.data as APIResponse<AcctResponse>;
 			if (data.success) return data;
+			else if (data.status === 404)
+				return { success: true, count: 0, records: [], status: 200 };
 			else throw new Error(data.message);
 		} catch (error) {
 			handleAPIError(error);
@@ -141,10 +157,26 @@ export class AcctRepository {
 
 	async getUserInvestments(request: z4.infer<typeof UserIdSchema>) {
 		try {
-			const params = `?action=read&userId=${request.clerkId}&target=investment`;
+			const params = `?action=read&userId=${request.clerkId}&target=${this.investment}`;
 			const res = await api.get(`${this.url}${params}`);
 			const data = res.data as APIResponse<InvResponse>;
 			if (data.success) return data;
+			else if (data.status === 404)
+				return { success: true, count: 0, records: [], status: 200 };
+			else throw new Error(data.message);
+		} catch (error) {
+			handleAPIError(error);
+		}
+	}
+
+	async getOptions(request: z4.infer<typeof UserIdSchema>) {
+		try {
+			const params = `?action=read&userId=${request.clerkId}&target=${this.options}`;
+			const res = await api.get(`${this.url}${params}`);
+			const data = res.data as APIResponse<OptionResponse>;
+			if (data.success) return data;
+			else if (data.status === 404)
+				return { success: true, count: 0, records: [], status: 200 };
 			else throw new Error(data.message);
 		} catch (error) {
 			handleAPIError(error);

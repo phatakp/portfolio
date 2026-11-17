@@ -1,12 +1,20 @@
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import type { AccountType, InvResponse, InvType } from "@/types";
+import type { AccountType, AcctResponse, InvResponse, InvType } from "@/types";
 import { apiQueries } from "./queries";
 
-export const useCurrUserAccounts = (userId: string) =>
-	useQuery(apiQueries.account.userAccts(userId));
+export const useGetAccounts = () => useSuspenseQuery(apiQueries.account.all());
 
-export const useGetBankOptions = (acctType: AccountType) =>
-	useQuery(apiQueries.account.bankOptions(acctType));
+export const useGetInvestments = () =>
+	useSuspenseQuery(apiQueries.investment.all());
+
+export const useGetUserAccounts = (data: AcctResponse[], userId: string) =>
+	useSuspenseQuery(apiQueries.account.userAccounts(data, userId));
+
+export const useGetUserInvestments = (data: InvResponse[], userId: string) =>
+	useSuspenseQuery(apiQueries.investment.userInvestments(data, userId));
+
+export const useGetBankOptions = (acctType: AccountType, isNew?: boolean) =>
+	useQuery(apiQueries.account.bankOptions(acctType, isNew));
 
 export const useGetStats = (
 	data: InvResponse[],

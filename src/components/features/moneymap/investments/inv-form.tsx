@@ -6,9 +6,10 @@ import {
 	useDeleteInvestment,
 	useUpdateInvestment,
 } from "@/api/moneymap/acct.mutations";
+import { Amount } from "@/components/shared/amount";
 import { useAppForm } from "@/components/shared/form-inputs/hooks";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
 	ACCOUNT_TYPE,
 	INVESTMENT_SUBTYPE,
@@ -16,7 +17,7 @@ import {
 	INVESTMENT_TYPE,
 	INVESTMENT_TYPE_OPTIONS,
 } from "@/lib/constants";
-import { capitalise, cn } from "@/lib/utils";
+import { capitalise } from "@/lib/utils";
 import { InvReqSchema } from "@/lib/zod/acct.schema";
 import type { Investment } from "@/types";
 
@@ -48,7 +49,7 @@ export function InvForm({ inv, invId, isDelete }: Props) {
 			googleCode: inv?.googleCode ?? "",
 			investedAmt: inv?.investedAmt ?? 0,
 			quantity: inv?.quantity ?? 0,
-			currValue: inv?.currValue ?? 0,
+			currValue: Number(inv?.currValue?.toFixed(0) ?? 0),
 			avgPrice: Number(inv?.avgPrice?.toFixed(2) ?? 0),
 			sip: inv?.sip ?? 0,
 			remarks: inv?.remarks,
@@ -66,9 +67,14 @@ export function InvForm({ inv, invId, isDelete }: Props) {
 		INVESTMENT_TYPE.DEPOSIT,
 		INVESTMENT_TYPE.RETIREMENT,
 	].includes(invType);
+	const isInvestment = [
+		INVESTMENT_TYPE.MUTUAL_FUND,
+		INVESTMENT_TYPE.EQUITY,
+	].includes(invType);
 
 	const { data: brokerOptions, isLoading } = useGetBankOptions(
 		ACCOUNT_TYPE.INVESTMENT,
+		!invId,
 	);
 
 	const subTypeOptions = INVESTMENT_SUBTYPE_OPTIONS.map((t) => ({
@@ -77,8 +83,11 @@ export function InvForm({ inv, invId, isDelete }: Props) {
 	}));
 
 	const loading =
-		isLoading || isPendingCreate || isPendingUpdate || isPendingDelete;
-	if (loading || !isLoaded) return <Skeleton className="h-40 w-80 m-auto" />;
+		isLoading ||
+		isPendingCreate ||
+		isPendingUpdate ||
+		isPendingDelete ||
+		!isLoaded;
 	if (!isSignedIn || !user.id) return;
 
 	return (
@@ -97,13 +106,18 @@ export function InvForm({ inv, invId, isDelete }: Props) {
 						listeners={{
 							onChange: ({ value }) => {
 								form.setErrorMap({});
-								form.setFieldValue("invType", value);
 								form.setFieldValue("fundName", "");
-								if (value === INVESTMENT_TYPE.DEPOSIT)
+								if (value === INVESTMENT_TYPE.DEPOSIT) {
 									form.setFieldValue("subType", INVESTMENT_SUBTYPE.DEBT);
-								else form.setFieldValue("subType", "");
+									form.setFieldValue("category", "Debt");
+								} else if (value === INVESTMENT_TYPE.EQUITY) {
+									form.setFieldValue("subType", INVESTMENT_SUBTYPE.EQUITY);
+									form.setFieldValue("category", "Equity");
+								} else {
+									form.setFieldValue("subType", "");
+									form.setFieldValue("category", "");
+								}
 								form.setFieldValue("broker", "");
-								form.setFieldValue("category", "");
 								form.setFieldValue("googleCode", "");
 								form.setFieldValue("investedAmt", 0);
 								form.setFieldValue("quantity", 0);
@@ -118,15 +132,13 @@ export function InvForm({ inv, invId, isDelete }: Props) {
 								<div className="flex w-full  gap-4 md:justify-between">
 									<field.SelectInput
 										label="Investment Type"
-										variant="success"
+										variant={invId ? "success" : "outline"}
 										disabled={isDelete || !!invId || loading}
 										options={INVESTMENT_TYPE_OPTIONS.map((t) => ({
 											value: t,
 											label: capitalise(t),
 										}))}
-										className={cn(
-											invId ? "bg-success text-success-foreground" : "",
-										)}
+										isLoading={loading}
 									/>
 
 									<form.AppField
@@ -134,33 +146,37 @@ export function InvForm({ inv, invId, isDelete }: Props) {
 										listeners={{
 											onChange: ({ value }) => {
 												form.setFieldValue("broker", value);
-												if (value === "NPS")
+												if (value === "NPS") {
 													form.setFieldValue(
 														"subType",
 														INVESTMENT_SUBTYPE.HYBRID,
 													);
-												else if (value === "EPF")
+													form.setFieldValue("category", "Hybrid");
+												} else if (value === "EPF") {
 													form.setFieldValue(
 														"subType",
 														INVESTMENT_SUBTYPE.DEBT,
 													);
+													form.setFieldValue("category", "Debt");
+												}
 											},
 										}}
 									>
 										{(field) => {
 											return (
 												<field.SelectInput
-													variant="default"
-													label={"Bank"}
+													variant={invId ? "default" : "outline"}
+													label={"Broker"}
 													disabled={isDelete || !!invId || loading}
 													options={brokerOptions ?? []}
+													isLoading={loading}
 												/>
 											);
 										}}
 									</form.AppField>
 								</div>
 
-								{!isDeposit && (
+								{invType === INVESTMENT_TYPE.MUTUAL_FUND && (
 									<div className="flex w-full gap-4 md:justify-between">
 										<form.AppField name="subType">
 											{(field) => (
@@ -168,6 +184,7 @@ export function InvForm({ inv, invId, isDelete }: Props) {
 													label={"Sub Type"}
 													disabled={isDelete || !!invId || loading}
 													options={subTypeOptions}
+													isLoading={loading}
 												/>
 											)}
 										</form.AppField>
@@ -175,8 +192,9 @@ export function InvForm({ inv, invId, isDelete }: Props) {
 										<form.AppField name="category">
 											{(field) => (
 												<field.TextInput
-													label={"Category"}
+													label={"Fund Category"}
 													disabled={isDelete || !!invId || loading}
+													isLoading={loading}
 												/>
 											)}
 										</form.AppField>
@@ -192,6 +210,7 @@ export function InvForm({ inv, invId, isDelete }: Props) {
 								<field.TextInput
 									label={"Fund Name"}
 									disabled={isDelete || !!invId || loading}
+									isLoading={loading}
 								/>
 							)}
 						</form.AppField>
@@ -202,6 +221,7 @@ export function InvForm({ inv, invId, isDelete }: Props) {
 									<field.TextInput
 										label={"Google Code"}
 										disabled={isDelete || !!invId || loading}
+										isLoading={loading}
 									/>
 								)}
 							</form.AppField>
@@ -214,6 +234,7 @@ export function InvForm({ inv, invId, isDelete }: Props) {
 								<field.AmountInput
 									label={"Invested Amount"}
 									disabled={isDelete || loading}
+									isLoading={loading}
 								/>
 							)}
 						</form.AppField>
@@ -224,6 +245,7 @@ export function InvForm({ inv, invId, isDelete }: Props) {
 									<field.AmountInput
 										label={"Curr Value"}
 										disabled={isDelete || loading}
+										isLoading={loading}
 									/>
 								)}
 							</form.AppField>
@@ -232,33 +254,75 @@ export function InvForm({ inv, invId, isDelete }: Props) {
 								{(field) => (
 									<field.TextInput
 										type="number"
-										label={"Quantity"}
+										label={
+											invType === INVESTMENT_TYPE.MUTUAL_FUND
+												? "Units"
+												: "Quantity"
+										}
 										disabled={isDelete || loading}
+										isLoading={loading}
 									/>
 								)}
 							</form.AppField>
 						)}
 					</div>
 
-					{!isDeposit && (
-						<div className="flex gap-4">
-							<form.AppField name="avgPrice">
-								{(field) => (
-									<field.AmountInput
-										label={"Average Price"}
-										disabled={isDelete || loading}
-									/>
-								)}
-							</form.AppField>
+					{isInvestment && (
+						<div className="flex gap-6 flex-wrap">
+							{invId && !loading && (
+								<>
+									<Badge className="rounded-sm">
+										Curr Value:{" "}
+										<Amount
+											amount={inv?.currValue ?? 0}
+											className="text-sm"
+											iconClass="text-primary-foreground"
+										/>
+									</Badge>
+									<Badge className="rounded-sm" variant={"secondary"}>
+										Avg Price: {inv?.avgPrice.toFixed(2)}
+									</Badge>
+									<Badge
+										className="rounded-sm"
+										variant={
+											inv
+												? inv?.currPrice < inv?.avgPrice
+													? "destructive"
+													: "success"
+												: "secondary"
+										}
+									>
+										{invType === INVESTMENT_TYPE.MUTUAL_FUND
+											? "NAV"
+											: "Curr Price"}
+										: {inv?.currPrice}
+									</Badge>
+								</>
+							)}
 
-							<form.AppField name="sip">
-								{(field) => (
-									<field.AmountInput
-										label={"SIP Amount"}
-										disabled={isDelete || loading}
-									/>
-								)}
-							</form.AppField>
+							{invType === INVESTMENT_TYPE.EQUITY && (
+								<form.AppField name="avgPrice">
+									{(field) => (
+										<field.AmountInput
+											label={"Average Price"}
+											disabled={isDelete || loading}
+											isLoading={loading}
+										/>
+									)}
+								</form.AppField>
+							)}
+
+							{invType === INVESTMENT_TYPE.MUTUAL_FUND && (
+								<form.AppField name="sip">
+									{(field) => (
+										<field.AmountInput
+											label={"SIP Amount"}
+											disabled={isDelete || loading}
+											isLoading={loading}
+										/>
+									)}
+								</form.AppField>
+							)}
 						</div>
 					)}
 
@@ -267,6 +331,7 @@ export function InvForm({ inv, invId, isDelete }: Props) {
 							<field.TextInput
 								label={"Remarks"}
 								disabled={isDelete || loading}
+								isLoading={loading}
 							/>
 						)}
 					</form.AppField>
